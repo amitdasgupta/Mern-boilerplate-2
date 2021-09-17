@@ -5,8 +5,9 @@ const path = require("path");
 const webpack = require("webpack");
 const webpackDevMiddleware = require("webpack-dev-middleware");
 const webpackHotMiddleware = require("webpack-hot-middleware");
-
+const kue = require("kue");
 const webpackConfig = require("../webpack.config");
+//queue created
 
 const isDev = process.env.NODE_ENV !== "production";
 const port = process.env.PORT || 8080;
@@ -15,6 +16,9 @@ const port = process.env.PORT || 8080;
 // ================================================================================================
 
 const app = express();
+
+app.use("/kue-api/", kue.app);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -49,7 +53,7 @@ if (isDev) {
   app.use(express.static(path.resolve(__dirname, "../dist")));
 } else {
   app.use(express.static(path.resolve(__dirname, "../dist")));
-  app.get("*", function (req, res) {
+  app.get("*", function(req, res) {
     res.sendFile(path.resolve(__dirname, "../dist/index.html"));
     res.end();
   });
