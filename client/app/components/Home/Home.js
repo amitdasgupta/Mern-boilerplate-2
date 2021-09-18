@@ -122,14 +122,14 @@ class Home extends React.Component {
     } else {
       console.log(data);
 
-      // axios
-      //   .post("/route", data)
-      //   .then((res) => {
-      //     console.log(`response - ${res}`);
-      //   })
-      //   .catch((err) => {
-      //     console.log(`error - ${err}`);
-      //   });
+      axios
+        .post("/api/lighthouse", data)
+        .then((res) => {
+          console.log(`response - ${res}`);
+        })
+        .catch((err) => {
+          console.log(`error - ${err}`);
+        });
 
       this.setState(DEFAULT_STATE);
     }
