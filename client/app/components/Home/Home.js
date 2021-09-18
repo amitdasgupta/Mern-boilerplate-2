@@ -35,11 +35,11 @@ const DEFAULT_STATE = {
   tags: [],
   blockedUrls: [],
   setSize: "",
-  oldTag: "",
-  newTag: "",
-  batchSize: "",
-  platform: "",
-  priority: "",
+  selector: "",
+  apTagId: "",
+  batchSize: "10",
+  platform: "desktop",
+  priority: "medium",
   blockUrl: "",
   open: false,
   error: false,
@@ -54,11 +54,11 @@ class Home extends React.Component {
       tags: [],
       blockedUrls: [],
       setSize: "",
-      oldTag: "",
-      newTag: "",
-      batchSize: "",
-      platform: "",
-      priority: "",
+      selector: "",
+      apTagId: "",
+      batchSize: "10",
+      platform: "desktop",
+      priority: "medium",
       blockUrl: "",
       open: false,
       error: false,
@@ -69,12 +69,6 @@ class Home extends React.Component {
     this.setState({
       [e.target.name]: e.target.value,
     });
-  };
-
-  handleTags = () => {
-    const { oldTags, newTags, apTags } = this.state;
-
-    this.setState({ apTags: [...apTags, { oldTags, newTags }] });
   };
 
   handleSubmit = (e) => {
@@ -161,15 +155,15 @@ class Home extends React.Component {
   };
 
   handleAddTag = () => {
-    const { oldTag, newTag, tags } = this.state;
+    const { selector, apTagId, tags } = this.state;
 
-    if (!oldTag || !newTag) {
+    if (!selector || !apTagId) {
       this.setState({ open: true });
     } else {
       this.setState({
-        tags: [...tags, { oldTag, newTag }],
-        oldTag: "",
-        newTag: "",
+        tags: [...tags, { selector, apTagId }],
+        selector: "",
+        apTagId: "",
       });
     }
   };
@@ -199,8 +193,8 @@ class Home extends React.Component {
       email,
       setSize,
       blockUrl,
-      oldTag,
-      newTag,
+      selector,
+      apTagId,
       error,
     } = this.state;
 
@@ -290,7 +284,7 @@ class Home extends React.Component {
               >
                 <MenuItem value=''>Choose the Platform</MenuItem>
                 <MenuItem value='mobile'>Mobile</MenuItem>
-                <MenuItem value='Desktop'>Desktop</MenuItem>
+                <MenuItem value='desktop'>Desktop</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth className={classes.inputField}>
@@ -313,14 +307,14 @@ class Home extends React.Component {
             <Grid container spacing={2}>
               <Grid item xs={5}>
                 <TextField
-                  name='oldTag'
+                  name='selector'
                   label='Current Tag*'
                   placeholder='Add current running tag'
-                  value={oldTag}
+                  value={selector}
                   margin='normal'
                   className={classes.inputField}
                   onChange={this.handleChange}
-                  error={error && !oldTag && !this.state.tags.length}
+                  error={error && !selector && !this.state.tags.length}
                 />{" "}
               </Grid>
               <Grid item xs={5}>
@@ -329,10 +323,10 @@ class Home extends React.Component {
                   label='Ap Tag Id*'
                   margin='normal'
                   className={classes.inputField}
-                  name='newTag'
-                  value={newTag}
+                  name='apTagId'
+                  value={apTagId}
                   onChange={this.handleChange}
-                  error={error && !newTag && !this.state.tags.length}
+                  error={error && !apTagId && !this.state.tags.length}
                 />{" "}
               </Grid>
 
@@ -354,7 +348,7 @@ class Home extends React.Component {
               <Grid key={index} container spacing={2}>
                 <Grid item xs={5}>
                   <TextField
-                    value={val.oldTag}
+                    value={val.selector}
                     margin='normal'
                     className={classes.inputField}
                   />{" "}
@@ -363,7 +357,7 @@ class Home extends React.Component {
                   <TextField
                     margin='normal'
                     className={classes.inputField}
-                    value={val.newTag}
+                    value={val.apTagId}
                   />{" "}
                 </Grid>
 
@@ -382,8 +376,8 @@ class Home extends React.Component {
               <Grid item xs={10}>
                 <TextField
                   name='blockUrl'
-                  label='Block URLs*'
-                  placeholder='Block URLs'
+                  label='Block URLs (Regex)*'
+                  placeholder='Block URLs (Regex)'
                   fullWidth
                   value={blockUrl}
                   margin='normal'
