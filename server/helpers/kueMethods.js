@@ -6,6 +6,7 @@ const { generateScoreAndSendMail } = require("./lighthouse");
 //audits will have all the data
 module.exports = {
   pushForScoreGeneration: (data = {}) => {
+    const {priority="medium"}=data;
     const job = queue
       .create("ap-optimizer", {
         title: "Generate light-house scores",
@@ -24,7 +25,7 @@ module.exports = {
 //queue processing
 queue.process("ap-optimizer", async (job, done) => {
   try {
-    generateScoreAndSendMail(job.data.data);
+    await generateScoreAndSendMail(job.data.data);
     done();
     return result.data;
   } catch (error) {

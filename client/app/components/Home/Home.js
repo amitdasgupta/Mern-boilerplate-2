@@ -1,166 +1,451 @@
-// import React, { Component } from "react";
+import React from "react";
+import axios from "axios";
+import {
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  Typography,
+  Grid,
+  Snackbar,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+} from "@material-ui/core";
 
-// class Home extends Component {
-//   constructor(props) {
-//     super(props);
+import Delete from "@material-ui/icons/Delete";
 
-//     this.state = {
-//       counters: {},
-//     };
-//   }
+import { withStyles } from "@material-ui/core/styles";
 
-//   render() {
-//     return (
-//       <>
-//         <div>Hello World</div>
-//         <button>Click</button>
-//       </>
-//     );
-//   }
-// }
+const styles = (theme) => ({
+  inputField: {
+    width: "100%",
+    margin: theme.spacing(1, 0),
+  },
+});
 
-// export default Home;
-import * as React from "react";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
+const DEFAULT_STATE = {
+  url: "",
+  siteId: "",
+  email: "",
+  tags: [],
+  blockedUrls: [],
+  setSize: "",
+  oldTag: "",
+  newTag: "",
+  batchSize: "",
+  platform: "",
+  priority: "",
+  blockUrl: "",
+  open: false,
+  error: false,
+};
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      url: "",
+      siteId: "",
+      email: "",
+      tags: [],
+      blockedUrls: [],
+      setSize: "",
+      oldTag: "",
+      newTag: "",
+      batchSize: "",
+      platform: "",
+      priority: "",
+      blockUrl: "",
+      open: false,
+      error: false,
+    };
+  }
 
-export default function ComboBox() {
-  return (
-    <Autocomplete
-      disablePortal
-      id="combo-box-demo"
-      options={top100Films}
-      sx={{ width: 300 }}
-      renderInput={(params) => <TextField {...params} label="Movie" />}
-    />
-  );
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  handleTags = () => {
+    const { oldTags, newTags, apTags } = this.state;
+
+    this.setState({ apTags: [...apTags, { oldTags, newTags }] });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+
+    const {
+      url,
+      siteId,
+      email,
+      batchSize,
+      platform,
+      priority,
+      blockedUrls,
+      setSize,
+      tags,
+      error,
+    } = this.state;
+
+    const isValid = !!(
+      siteId &&
+      url &&
+      email &&
+      platform &&
+      priority &&
+      batchSize &&
+      setSize &&
+      blockedUrls.length &&
+      tags.length
+    );
+
+    const data = {
+      url,
+      siteId,
+      email,
+      batchSize,
+      platform,
+      priority,
+      blockedUrls,
+      setSize,
+      tags,
+    };
+
+    if (!isValid) {
+      this.setState({ error: true });
+    } else {
+      console.log(data);
+
+      axios
+        .post("/api/lighthouse", data)
+        .then((res) => {
+          console.log(`response - ${res}`);
+        })
+        .catch((err) => {
+          console.log(`error - ${err}`);
+        });
+
+      this.setState(DEFAULT_STATE);
+    }
+  };
+
+  handleSelect = (value, key) => {
+    this.setState({ [key]: value });
+  };
+
+  handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    this.setState({ open: false });
+  };
+
+  handleAdd = () => {
+    const { blockUrl, blockedUrls } = this.state;
+
+    if (!blockUrl) {
+      this.setState({ open: true });
+    } else {
+      this.setState({
+        blockUrl: "",
+        open: false,
+        blockedUrls: [...blockedUrls, blockUrl],
+      });
+    }
+  };
+
+  handleAddTag = () => {
+    const { oldTag, newTag, tags } = this.state;
+
+    if (!oldTag || !newTag) {
+      this.setState({ open: true });
+    } else {
+      this.setState({
+        tags: [...tags, { oldTag, newTag }],
+        oldTag: "",
+        newTag: "",
+      });
+    }
+  };
+
+  handleDelete = (index) => {
+    const { blockedUrls } = this.state;
+    blockedUrls.splice(index, 1);
+    this.setState({ blockedUrls });
+  };
+
+  handleDeleteTag = (index) => {
+    const { tags } = this.state;
+    tags.splice(index, 1);
+    this.setState({ tags });
+  };
+
+  renderTagsField() {}
+
+  render() {
+    const { classes } = this.props;
+    const {
+      platform,
+      url,
+      siteId,
+      batchSize,
+      priority,
+      email,
+      setSize,
+      blockUrl,
+      oldTag,
+      newTag,
+      error,
+    } = this.state;
+
+    return (
+      <div className='box'>
+        <div className='box-primary'>
+          <img
+            src={
+              "https://www.adpushup.com/wp-content/uploads/2020/02/support_1a_changes-e1581649133824.png"
+            }
+            height='300px'
+            alt=''
+          />
+        </div>
+        <div className='box-secondary'>
+          <Typography variant='h3' component='h2'>
+            AP Optimizer
+          </Typography>
+
+          <React.Fragment>
+            <TextField
+              placeholder='Enter the URL'
+              label='Enter the URL*'
+              variant='outlined'
+              fullWidth
+              name='url'
+              value={url}
+              className={classes.inputField}
+              onChange={this.handleChange}
+              error={error && !url}
+            />
+            <TextField
+              placeholder='Enter Site Id'
+              label='Site Id*'
+              variant='outlined'
+              fullWidth
+              name='siteId'
+              value={siteId}
+              className={classes.inputField}
+              onChange={this.handleChange}
+              error={error && !siteId}
+            />
+            <TextField
+              placeholder='Enter Your E-mail Address'
+              label='E-mail*'
+              variant='outlined'
+              fullWidth
+              name='email'
+              value={email}
+              className={classes.inputField}
+              onChange={this.handleChange}
+              error={error && !email}
+            />
+            <FormControl fullWidth className={classes.inputField}>
+              <InputLabel id='demo-simple-select-label'>Batch Size*</InputLabel>
+
+              <Select
+                name='batchSize'
+                onChange={this.handleChange}
+                value={batchSize}
+                error={error && !batchSize}
+              >
+                <MenuItem value=''>Choose the batch size</MenuItem>
+                <MenuItem value='5'>5</MenuItem>
+                <MenuItem value='10'>10</MenuItem>
+                <MenuItem value='15'>15</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              placeholder='Number of Sets'
+              label='Enter Number of Sets*'
+              fullWidth
+              name='setSize'
+              value={setSize}
+              onChange={this.handleChange}
+              className={classes.inputField}
+              error={error && !setSize}
+            />
+            <FormControl fullWidth className={classes.inputField}>
+              <InputLabel id='demo-simple-select-label'>Platform*</InputLabel>
+
+              <Select
+                name='platform'
+                onChange={this.handleChange}
+                value={platform}
+                error={error && !platform}
+              >
+                <MenuItem value=''>Choose the Platform</MenuItem>
+                <MenuItem value='mobile'>Mobile</MenuItem>
+                <MenuItem value='Desktop'>Desktop</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth className={classes.inputField}>
+              <InputLabel id='demo-simple-select-label'>Priority*</InputLabel>
+
+              <Select
+                name='priority'
+                value={priority}
+                onChange={this.handleChange}
+                error={error && !priority}
+              >
+                <MenuItem value=''>Choose Priority</MenuItem>
+                <MenuItem value='low'>Low</MenuItem>
+                <MenuItem value='normal'>Normal</MenuItem>
+                <MenuItem value='medium'>Medium</MenuItem>
+                <MenuItem value='high'>High</MenuItem>
+                <MenuItem value='critical'>Critical</MenuItem>
+              </Select>
+            </FormControl>
+            <Grid container spacing={2}>
+              <Grid item xs={5}>
+                <TextField
+                  name='oldTag'
+                  label='Current Tag*'
+                  placeholder='Add current running tag'
+                  value={oldTag}
+                  margin='normal'
+                  className={classes.inputField}
+                  onChange={this.handleChange}
+                  error={error && !oldTag && !this.state.tags.length}
+                />{" "}
+              </Grid>
+              <Grid item xs={5}>
+                <TextField
+                  placeholder='Enter APTag Id'
+                  label='Ap Tag Id*'
+                  margin='normal'
+                  className={classes.inputField}
+                  name='newTag'
+                  value={newTag}
+                  onChange={this.handleChange}
+                  error={error && !newTag && !this.state.tags.length}
+                />{" "}
+              </Grid>
+
+              <Grid item xs={2}>
+                <Button
+                  type='submit'
+                  color='primary'
+                  variant='contained'
+                  style={{ marginTop: "25px" }}
+                  size='small'
+                  onClick={this.handleAddTag}
+                >
+                  Add{" "}
+                </Button>
+              </Grid>
+            </Grid>
+
+            {this.state.tags.map((val, index) => (
+              <Grid key={index} container spacing={2}>
+                <Grid item xs={5}>
+                  <TextField
+                    value={val.oldTag}
+                    margin='normal'
+                    className={classes.inputField}
+                  />{" "}
+                </Grid>
+                <Grid item xs={5}>
+                  <TextField
+                    margin='normal'
+                    className={classes.inputField}
+                    value={val.newTag}
+                  />{" "}
+                </Grid>
+
+                <Grid item xs={2}>
+                  <IconButton
+                    color='primary'
+                    onClick={() => this.handleDeleteTag(index)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            ))}
+
+            <Grid container spacing={2}>
+              <Grid item xs={10}>
+                <TextField
+                  name='blockUrl'
+                  label='Block URLs*'
+                  placeholder='Block URLs'
+                  fullWidth
+                  value={blockUrl}
+                  margin='normal'
+                  className={classes.inputField}
+                  onChange={this.handleChange}
+                  error={error && !blockUrl && !this.state.blockedUrls.length}
+                />
+              </Grid>
+
+              <Grid item xs={2}>
+                {" "}
+                <Button
+                  type='submit'
+                  color='primary'
+                  variant='contained'
+                  style={{ marginTop: "25px" }}
+                  size='small'
+                  onClick={this.handleAdd}
+                >
+                  Add{" "}
+                </Button>
+              </Grid>
+            </Grid>
+            <Snackbar
+              message='Please enter something to add'
+              open={this.state.open}
+              onClose={() => this.setState({ open: false })}
+              autoHideDuration={2000}
+            />
+
+            <List>
+              {this.state.blockedUrls.map((val, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={val} />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      color='primary'
+                      onClick={() => this.handleDelete(index)}
+                      style={{ marginRight: "30px" }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+            <Button
+              variant='contained'
+              color='primary'
+              type='submit'
+              className='generate-button'
+              fullWidth
+              style={{ marginTop: "20px" }}
+              onClick={this.handleSubmit}
+            >
+              Generate Scores
+            </Button>
+          </React.Fragment>
+        </div>
+      </div>
+    );
+  }
 }
 
-// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
-const top100Films = [
-  { label: "The Shawshank Redemption", year: 1994 },
-  { label: "The Godfather", year: 1972 },
-  { label: "The Godfather: Part II", year: 1974 },
-  { label: "The Dark Knight", year: 2008 },
-  { label: "12 Angry Men", year: 1957 },
-  { label: "Schindler's List", year: 1993 },
-  { label: "Pulp Fiction", year: 1994 },
-  {
-    label: "The Lord of the Rings: The Return of the King",
-    year: 2003,
-  },
-  { label: "The Good, the Bad and the Ugly", year: 1966 },
-  { label: "Fight Club", year: 1999 },
-  {
-    label: "The Lord of the Rings: The Fellowship of the Ring",
-    year: 2001,
-  },
-  {
-    label: "Star Wars: Episode V - The Empire Strikes Back",
-    year: 1980,
-  },
-  { label: "Forrest Gump", year: 1994 },
-  { label: "Inception", year: 2010 },
-  {
-    label: "The Lord of the Rings: The Two Towers",
-    year: 2002,
-  },
-  { label: "One Flew Over the Cuckoo's Nest", year: 1975 },
-  { label: "Goodfellas", year: 1990 },
-  { label: "The Matrix", year: 1999 },
-  { label: "Seven Samurai", year: 1954 },
-  {
-    label: "Star Wars: Episode IV - A New Hope",
-    year: 1977,
-  },
-  { label: "City of God", year: 2002 },
-  { label: "Se7en", year: 1995 },
-  { label: "The Silence of the Lambs", year: 1991 },
-  { label: "It's a Wonderful Life", year: 1946 },
-  { label: "Life Is Beautiful", year: 1997 },
-  { label: "The Usual Suspects", year: 1995 },
-  { label: "Léon: The Professional", year: 1994 },
-  { label: "Spirited Away", year: 2001 },
-  { label: "Saving Private Ryan", year: 1998 },
-  { label: "Once Upon a Time in the West", year: 1968 },
-  { label: "American History X", year: 1998 },
-  { label: "Interstellar", year: 2014 },
-  { label: "Casablanca", year: 1942 },
-  { label: "City Lights", year: 1931 },
-  { label: "Psycho", year: 1960 },
-  { label: "The Green Mile", year: 1999 },
-  { label: "The Intouchables", year: 2011 },
-  { label: "Modern Times", year: 1936 },
-  { label: "Raiders of the Lost Ark", year: 1981 },
-  { label: "Rear Window", year: 1954 },
-  { label: "The Pianist", year: 2002 },
-  { label: "The Departed", year: 2006 },
-  { label: "Terminator 2: Judgment Day", year: 1991 },
-  { label: "Back to the Future", year: 1985 },
-  { label: "Whiplash", year: 2014 },
-  { label: "Gladiator", year: 2000 },
-  { label: "Memento", year: 2000 },
-  { label: "The Prestige", year: 2006 },
-  { label: "The Lion King", year: 1994 },
-  { label: "Apocalypse Now", year: 1979 },
-  { label: "Alien", year: 1979 },
-  { label: "Sunset Boulevard", year: 1950 },
-  {
-    label:
-      "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
-    year: 1964,
-  },
-  { label: "The Great Dictator", year: 1940 },
-  { label: "Cinema Paradiso", year: 1988 },
-  { label: "The Lives of Others", year: 2006 },
-  { label: "Grave of the Fireflies", year: 1988 },
-  { label: "Paths of Glory", year: 1957 },
-  { label: "Django Unchained", year: 2012 },
-  { label: "The Shining", year: 1980 },
-  { label: "WALL·E", year: 2008 },
-  { label: "American Beauty", year: 1999 },
-  { label: "The Dark Knight Rises", year: 2012 },
-  { label: "Princess Mononoke", year: 1997 },
-  { label: "Aliens", year: 1986 },
-  { label: "Oldboy", year: 2003 },
-  { label: "Once Upon a Time in America", year: 1984 },
-  { label: "Witness for the Prosecution", year: 1957 },
-  { label: "Das Boot", year: 1981 },
-  { label: "Citizen Kane", year: 1941 },
-  { label: "North by Northwest", year: 1959 },
-  { label: "Vertigo", year: 1958 },
-  {
-    label: "Star Wars: Episode VI - Return of the Jedi",
-    year: 1983,
-  },
-  { label: "Reservoir Dogs", year: 1992 },
-  { label: "Braveheart", year: 1995 },
-  { label: "M", year: 1931 },
-  { label: "Requiem for a Dream", year: 2000 },
-  { label: "Amélie", year: 2001 },
-  { label: "A Clockwork Orange", year: 1971 },
-  { label: "Like Stars on Earth", year: 2007 },
-  { label: "Taxi Driver", year: 1976 },
-  { label: "Lawrence of Arabia", year: 1962 },
-  { label: "Double Indemnity", year: 1944 },
-  {
-    label: "Eternal Sunshine of the Spotless Mind",
-    year: 2004,
-  },
-  { label: "Amadeus", year: 1984 },
-  { label: "To Kill a Mockingbird", year: 1962 },
-  { label: "Toy Story 3", year: 2010 },
-  { label: "Logan", year: 2017 },
-  { label: "Full Metal Jacket", year: 1987 },
-  { label: "Dangal", year: 2016 },
-  { label: "The Sting", year: 1973 },
-  { label: "2001: A Space Odyssey", year: 1968 },
-  { label: "Singin' in the Rain", year: 1952 },
-  { label: "Toy Story", year: 1995 },
-  { label: "Bicycle Thieves", year: 1948 },
-  { label: "The Kid", year: 1921 },
-  { label: "Inglourious Basterds", year: 2009 },
-  { label: "Snatch", year: 2000 },
-  { label: "3 Idiots", year: 2009 },
-  { label: "Monty Python and the Holy Grail", year: 1975 },
-];
+export default withStyles(styles)(Home);

@@ -1,9 +1,15 @@
-import React, { Component } from "react";
+import React from "react";
+import "../../styles/App.scss";
+import { CssBaseline } from "@material-ui/core";
+import Home from "../Home/Home";
 
-const App = ({ children }) => (
-  <>
-    <main>{children}</main>
-  </>
-);
+function App() {
+  return (
+    <>
+      <CssBaseline />
+      <Home />
+    </>
+  );
+}
 
 export default App;

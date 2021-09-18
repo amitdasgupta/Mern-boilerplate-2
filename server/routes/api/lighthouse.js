@@ -1,4 +1,4 @@
-const { push } = require("../../helpers/kueMethods");
+const { pushForScoreGeneration } = require("../../helpers/kueMethods");
 
 module.exports = (app) => {
   app.post("/api/lighthouse", (req, res) => {
